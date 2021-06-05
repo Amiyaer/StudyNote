@@ -308,7 +308,7 @@ key：实际使用的索引。如果为NULL，则没有使用索引。
 
 查询中若使用了覆盖索引，则该索引仅出现在key列表之中。
 
-[^覆盖索引]: 查询的字段刚好与建立的索引的个数和顺序刚好一致。
+[^覆盖索引]: ==select的数据列只用从索引中就能取得==。如果要使用覆盖索引，不可select *。
 
 6.key_len
 
@@ -325,6 +325,129 @@ key_len显示的值为索引字段的最大可能长度，而并非真实长度�
 ![](E:\new add juan\学习\面试\pic\索引.png)
 
 在上图的查询语句中，t1引用了t2的col1列和一个常量，而t2没有引用任何，因此t1有ref而t2没有。
+
+8.rows
+
+根据索引的使用情况，大致估算出找到所需的记录所需要读取的行数。
+
+9.extra
+
+不适合在其他列中显示 但是十分重要的额外信息。
+
+- ==using  filesort==：使用文件排序。说明mysql会对数据使用一个外部的索引排序，而不是按照表内的索引顺序进行读取(最左原则)。(出现这种情况十分危险)。
+
+[^explain]: 使用ORDER BY的时候如果order的字段是在索引中的字段且(==串顺序||少字段==)，就会出现该信息。正常的顺序若索引的第一个字段使用了in匹配，同样会出现此信息提示，不含in的字段还会出现using temporary。
+
+- ==using temporary==：表明使用了临时表保存中间结果。mysql在对查询结果排序时使用临时表。常见于排序order by和分组查询group by。(这种情况更为严重，查询速度会被严重拖慢)。
+
+- ==using index==：表示select操作中使用了覆盖索引，避免了访问表的数据行，效率不错。
+
+[^explain]: 如果没有出现using where，表明索引被用来执行索引键值的查找(查询条件)；如果没有出现，则说明索引用来读取数据而非执行查找操作。
+
+- using where：表明使用了where查询条件。
+
+- using join buffer：使用了连接缓存。
+
+- impossible where：where 子句的值总是false。
+
+- ~~select tables optimized away：在没有GROUPBY子句的情况下，基于索引优化MIN/MAX操作或者对于MyISAM存储引擎优化COUNT(*)操作，不必等到执行阶段在进行计算，查询执行计划生成的阶段即完成优化。~~
+
+- distinct：优化distinct操作，再找到第一匹配的元组后即停止找同样值的动作。
+
+---
+
+#### 索引优化
+
+范围(>、<、in等)后的索引会失效。
+
+##### 单表案例
+
+查询category_id为1且comments大于1的情况下，view最多的article_id
+
+```sql
+#第一次尝试使用三个字段来建立索引
+create index idx_article_ccv on article(category_id,comments,view)
+
+explain select id,author_id FROM article where category_id=1 and comments>1 order by views DESC limit 1
+```
+
+![](..\pic\case1.1.png)
+
+```sql
+#但是结果出现了文件排序，这是由于第二个字段comments是一个范围，使得索引失效了。
+#改进：不使用comments作为字段建立索引，而使用其他两个字段作为索引
+create index idx_article_cv on article(category_id,view)
+```
+
+![](..\pic\case1.2.png)
+
+
+
+##### 两表案例(含有主外键的情况)
+
+```sql
+#两表的左外连接
+explain select * from class LEFT JOIN book ON class.card=book.card;
+
+#1.加索引给左连接的右边的外键，右表的查询得到改善
+#2.加索引给左连接的左边的外键，左表的查询也得到改善，但改善幅度小得多
+```
+
+结论：左连接的情况，左边的数据一定全部都有。所以右边是关键点，必须建立索引。右连接的情况，左边是关键点，必须建立索引。
+
+
+
+##### 三表案例
+
+```sql
+SELECT * from class LEFT JOIN book ON class.card=book.card LEFT JOIN phone ON book.card=phone.card;
+
+#现在，在book表和phone表中分别建一个索引(card字段)，再进行查询，结果这两个字段的type都是ref且总的rows优化很好。
+```
+
+索引最好设置在需要经常查询的字段中。
+
+![](..\pic\case3.png)
+
+
+
+**结论：尽可能用小结果驱动大的结果；优先优化NestedLoop的内层循环；==保证Join语句中<u>被驱动表</u>上Join条件字段已经被索引==；无法保证被驱动表的Join条件字段被索引且内存资源充足的前提下，不要太吝啬JoinBuffer的设置。**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
