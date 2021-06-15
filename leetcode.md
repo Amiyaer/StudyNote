@@ -94,6 +94,19 @@ inline void merge(int i, int j)
 }
 ```
 
+##### 优先队列
+
+合并链表，寻找第k等都适用。
+
+自己定义好一个优先队列后，它内部会自动对插入的元素进行排序。
+
+```java
+PriorityQueue<类型> q = new PriorityQueue<>((x,y)->x.val-y.val);
+//x-y是升序，y-x
+```
+
+
+
 ---
 
 #### 算法

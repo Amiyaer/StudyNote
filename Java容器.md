@@ -240,5 +240,45 @@ TreeMap<Person, String> treeMap = new TreeMap<>((person1, person2) -> {
 
 #### ==HashMap的底层实现==
 
+~~见手抄~~
 
+treeifyBin方法
+
+```java
+ final void treeifyBin(Node<K,V>[] tab, int hash) {
+        //定义几个变量，n是数组长度，index是索引
+        int n, index; Node<K,V> e;
+        //这里的tab指的是本HashMap中的数组，n为数字长度，如果数组为null或者数组长度小于64
+        if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
+            //则调用resize()方法直接扩容，不转红黑树
+            resize();
+        //否则说明满足转红黑树条件，通过按位与运算取得索引index，并将该索引对应的node节点赋值给e，e不为null时    
+        else if ((e = tab[index = (n - 1) & hash]) != null) {
+            //定义几个变量，hd代表头节点，tl代表尾节点
+            TreeNode<K,V> hd = null, tl = null;
+            do {
+                //先把e节点转成TreeNode类型，并赋值给p
+                TreeNode<K,V> p = replacementTreeNode(e, null);
+                //如果尾节点tl为空，则说明还没有根节点，试想下，这时元素数目都超过8个了，还能没有尾节点么，所以没有尾节点只能说明还没设置根节点
+                if (tl == null)
+                    //设置根节点，把p赋值给根节点hd
+                    hd = p;
+                else {
+                    //把tl设置为p的前驱节点
+                    p.prev = tl;
+                    //把p设置为tl的后继节点，这两步其实就是我指向你，你指向我的关系，为了形成双向链表 
+                    tl.next = p;
+                }
+                //把首节点设置成p后，把p赋值给尾节点tl，然后会再取链表的下一个节点，转成TreeNode类型后再赋值给p，如此循环
+                tl = p;
+                //取下一个节点，直到下一个节点为空，也就代表这链表遍历好了
+            } while ((e = e.next) != null);
+            //用新生成的双向链表替代旧的单向链表，其实就是把这个数组对应的位置重新赋值成新双向链表的首节点
+            if ((tab[index] = hd) != null)
+                //这个方法里就开始做各种比较，左旋右旋，然后把双向链表搞成一个红黑树
+                hd.treeify(tab);
+        }
+    }
+
+```
 
