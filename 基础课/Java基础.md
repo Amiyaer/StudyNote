@@ -642,9 +642,108 @@ Java Io 流共涉及 40 多个类，这些类看上去很杂乱，但实际上�
 
 字符流是由Java虚拟机将字节转换得到的，这个过程==非常的耗时==，并且如果不知道编码类型就很容易出现乱码的问题。所以IO直接提供了操作字符的接口方便我们使用。
 
+---
+
+
+
+
+
+
+
+### Java关键字
+
+#### final
+
+用于修饰类、方法和变量。
+
+final修饰的类不能被继承，且它的所有成员(private)方法都会被隐式指定为final方法。
+
+final修饰的方法不能被重写。
+
+final修饰的变量是常量，不能被修改。
+
+
+
+#### this
+
+用于引用类的当前实例。
+
+
+
+#### super
+
+用于从子类访问父类的变量和方法。
+
+在构造方法中使用super()调用父类的其他构造方法时，该语句要放在构造器的首行，否则编译器报错。
+
+this和super都不能放在static方法中。
+
+
+
+#### static
+
+四种应用场景
+
+##### 修饰成员变量和成员方法(常用)
+
+被static修饰的成员属于类，**不属于单个这个类的某个对象，被类中所有对象共享**，可以并且建议通过类名调用。
+
+静态的方法属于类本身，非静态方法属于从这个类生成的每一个对象。静态方法在访问本类的成员时，只允许访问静态成员。
+
+##### 静态代码块
+
+静态代码块定义在类中的方法外，静态代码块会在非静态代码块之前执行(静态代码块→非静态代码块→构造方法)
+
+静态代码块只在第一次new的时候或者Class.forName的时候会执行。
+
+```java
+static{
+    //TODO
+}
+```
+
+非静态代码块与构造函数的区别：非静态代码块是给所有对象进行统一初始化，而构造函数是给对应的对象初始化。无论建立哪个对象，搜会先执行相同的构造代码块。
+
+##### 修饰类(只能修饰内部类)
+
+静态内部类与非静态内部类之间存在一个最大的区别，我们知道非静态内部类在编译完成之后会隐含地保存着一个引用，该引用是指向创建它的外围类，但是静态内部类却没有。没有这个引用就意味着：
+
+1. 它的创建是不需要依赖外围类的创建。
+2. 它不能使用任何外围类的非 static 成员变量和方法。
+
+
+
+##### 静态导包
+
+`import static`。
+
+这两个关键字连用可以指定导入某个类中的指定静态资源，并且不需要使用类名调用类中静态成员，可以直接使用类中静态成员变量和成员方法。
+
+
+
 
 
 ---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -678,15 +777,95 @@ p3.**不能使用一个值为null的引用类型变量来调用非静态方法**
 
 
 
+
+
 ### GROUP2(包装类)
 
 p1.所有整型包装类对象之间值的比较，全部使用equals()方法。
 
 
 
+
+
 ### GROUP3(BigDecimal)
 
-问题引出：浮点数之间的等值判断，基本类型的浮点数不能用==比较，包装类的浮点数类型不能用equals()比较。
+问题引出：浮点数之间的等值判断，基本类型的浮点数不能用==比较，包装类的浮点数类型不能用equals()比较。**会发生精度丢失，使得相等的浮点数比较起来也不相等**。
 
-用处：定义浮点数的值。
+用处：==定义浮点数的值==。
+
+使用：`BigDecimal a = new BigDecimal("0.3")`。此时的精度就是0.1。
+
+大小比较：`a.compareTo(b)`；a大于b返回1，小于返回-1，等于返回0。
+
+保留小数：`setScale`方法
+
+```java
+BigDecimal m = new BigDecimal("1.255433");
+//保留3位小数
+BigDecimal n = m.setScale(3,BigDecimal.ROUND_HALF_DOWN);
+System.out.println(n);// 1.255
+```
+
+
+
+
+
+### GROUP4(集合)
+
+#### Arrays.asList()使用
+
+作用：将一个数组转换成一个List集合。
+
+```java
+/**源码说明
+  *返回由指定数组支持的固定大小的列表。此方法作为基于数组和基于集合的API之间的桥梁，
+  * 与 Collection.toArray()结合使用。返回的List是可序列化并实现RandomAccess接口。
+  */
+public static <T> List<T> asList(T... a) {
+    return new ArrayList<>(a);
+}
+```
+
+传递的数组必须是对象数组而不能是基本类型(基本类型使用包装类)，否则该方法得到的List只有一个元素，就是该数组本身。
+
+该方法返回的List不是ArrayList，而是java.util.Arrays的一个内部类，==**这个内部类并没有实现集合修改的方法**==，因此不能对这个得到的集合进行`add()`、`remove()`、`clear()`操作。
+
+
+
+
+
+#### Collection.toArray()方法
+
+将集合转换为数组，需要传入一个指定的类型作为参数，否则就会报错。如`new String(0)`。
+
+`Collection.reverse(list)`：反转list集合。
+
+
+
+
+
+#### 不要在foreach循环里进行元素的remove/add操作
+
+> fail-fast机制：多个线程对fail-fast集合进行修改的时候，可能会抛出ConcurrentModificationException，单线程下也会出现这种情况。
+
+
+
+java8的removeIf()方法删除满足特定条件的元素。
+
+```java
+List<Integer> list = new ArrayList<>();
+for (int i = 1; i <= 10; ++i) {
+    list.add(i);
+}
+list.removeIf(filter -> filter % 2 == 0); /* 删除list中的所有偶数 */
+System.out.println(list); /* [1, 3, 5, 7, 9] */
+```
+
+如果进行remove操作，可以调用迭代器的remove方法而不是**集合类的remove方法**。如果列表在任何时间从结构上修改创建迭代器之后，以任何方式除非通过迭代器自身`remove/add`方法，迭代器都将抛出一个`ConcurrentModificationException`,这就是单线程状态下产生的 **fail-fast 机制**。
+
+
+
+<span style="color:red">java.util包下面的所有集合类都是fail-fast的，而java.util.concurrent包下面的所有类都是fail-safe的</span>。
+
+![不要在 foreach 循环里进行元素的 remove/add 操作](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019/7/foreach-remove:add.png)
 

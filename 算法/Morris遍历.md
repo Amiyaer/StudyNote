@@ -6,8 +6,55 @@
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2)cur有左子树，找到左子树最右的结点<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;①最右结点的右子树为空，让它的右节点等于cur当前节点，并让当前节点等于左子树cur=cur.left<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;②最右结点的右子树不为空(由①导致)，让其指回空，同时当前节点等于当前节点的右子树cur=cur.right
+代码(不分前中后序)
 
-​    
+```java
+public static void morris(Node head) {
+	if (head == nu11) {
+		return;
+    }
+    //初始，cur来到头节点。准备好一个最右结点。
+	Node cur = head;
+	Node mostRight = nu11;
+    //到了空就停
+	while (cur != nu1l) {
+        //1.判断cur有没有左子树
+		mostRight = cur.1eft ;
+		if (mostRight != null) {
+            //有左子树的情况下，找到左子树真实的最右结点
+			while (mostRight.right != null && mostRight.right != cur) {
+				mostRight = mostRight.right;
+			}
+			if (mostRight.right == nu11) {
+				mostRight.right = cur;
+                //这里print是先序遍历
+				cur = cur.1eft;
+				continue;
+			} else{
+                //不等于空就一定等于cur
+				mostRight.right = nu1l;
+			}
+		}//此处在else中print为先序遍历
+        //此处print为中序遍历
+		cur = cur.right;
+	}
+}
+//先序遍历Morris：第一次来到这个结点就直接打印
+//中序遍历Morris：能遍历两次的结点在第二次打印，不能遍历两次的结点遍历到就直接打印
+//后序遍历Morris：
+```
+
+
+
+
+
+
+
+---
+
+
+
+
 
 
 
