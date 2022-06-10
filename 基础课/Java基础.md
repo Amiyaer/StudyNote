@@ -459,7 +459,7 @@ protected void finalize() throws Throwable { }
 
 
 
-JDK实现动态代理的示例代码，使用了反射类<span style="color:orange">`Method`</span>来调用指定的方法。
+JDK实现动态代理的示例代码，使用了反射类<span style="color:orange"> `Method`</span>来调用指定的方法。
 
 ```java
 public class DebugInvocationHandler implements InvocationHandler {
@@ -524,18 +524,18 @@ Java 代码在编译过程中 ，我们即使不处理不受检查异常也可�
 
 **Throwable**类常用方法
 
-- **`public string getMessage()`**:返回异常发生时的简要描述
-- **`public string toString()`**:返回异常发生时的详细信息
-- **`public string getLocalizedMessage()`**:返回异常对象的本地化信息。使用 `Throwable` 的子类覆盖这个方法，可以生成本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与 `getMessage（）`返回的结果相同
-- **`public void printStackTrace()`**:在控制台上打印 `Throwable` 对象封装的异常信息
+- ** `public string getMessage()`**:返回异常发生时的简要描述
+- ** `public string toString()`**:返回异常发生时的详细信息
+- ** `public string getLocalizedMessage()`**:返回异常对象的本地化信息。使用 `Throwable` 的子类覆盖这个方法，可以生成本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与 `getMessage（）`返回的结果相同
+- ** `public void printStackTrace()`**:在控制台上打印 `Throwable` 对象封装的异常信息
 
 
 
 #### try-catch-finally
 
-- **`try`块：** 用于捕获异常。其后可接零个或多个 `catch` 块，如果==没有 `catch` 块，则必须跟一个 `finally` 块==。
-- **`catch`块：** 用于处理 try 捕获到的异常。
-- **`finally` 块：** 无论是否捕获或处理异常，`finally` 块里的语句都会被执行。当在 `try` 块或 `catch` 块中遇到 `return` 语句时，**==`finally` 语句块将在方法返回之前被执行，并且finally语句中的返回值会覆盖原始语句中的返回值==**。
+- ** `try`块：** 用于捕获异常。其后可接零个或多个 `catch` 块，如果==没有 `catch` 块，则必须跟一个 `finally` 块==。
+- ** `catch`块：** 用于处理 try 捕获到的异常。
+- ** `finally` 块：** 无论是否捕获或处理异常，`finally` 块里的语句都会被执行。当在 `try` 块或 `catch` 块中遇到 `return` 语句时，**== `finally` 语句块将在方法返回之前被执行，并且finally语句中的返回值会覆盖原始语句中的返回值==**。
 
 3种finally不执行的情况：
 
@@ -869,3 +869,52 @@ System.out.println(list); /* [1, 3, 5, 7, 9] */
 
 ![不要在 foreach 循环里进行元素的 remove/add 操作](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019/7/foreach-remove:add.png)
 
+
+
+
+
+
+
+### 抽象类和接口
+
+抽象类指抽象而没有具体实例的类。接口是一种与类相似的结构，在很多方面与抽象类相近。
+
+#### 抽象类
+
+抽象类使用关键字 `abstract` 修饰。抽象类和常规类一样具有数据域、方法和构造方法，但是不能用 `new` 操作符创建实例。
+
+抽象类可以包含抽象方法。抽象方法使用关键字 `abstract` 修饰，只有方法签名而没有实现，其实现由子类提供。抽象方法都是非静态的。包含抽象方法的类必须声明为抽象类。
+
+非抽象类不能包含抽象方法。如果一个抽象父类的子类不能实现所有的抽象方法，则该子类也必须声明为抽象类。
+
+包含抽象方法的类必须声明为抽象类，但是抽象类可以不包含抽象方法。
+
+#### 接口
+
+接口使用关键字 `interface` 定义。接口只包含可见性为 `public` 的常量和抽象方法，不包含变量和具体方法。
+
+和抽象类一样，接口不能用 `new` 操作符创建实例。
+
+新版本的 JDK 关于接口的规则有以下变化。
+
+- 从 Java 8 开始，接口方法可以由默认实现。
+- 从 Java 9 开始，接口内允许定义私有方法。
+
+一个类只能继承一个父类，但对接口允许多重继承。一个接口可以继承多个接口，这样的接口称为子接口。
+
+#### 抽象类和接口的区别
+
+- 抽象类的变量没有限制，接口只包含常量，即接口的所有变量必须是 `public static final`。
+- 抽象类包含构造方法，子类通过构造方法链调用构造方法，接口不包含构造方法。
+- 抽象类的方法没有限制，接口的方法必须是 `public abstract` 的实例方法（注：新版本的 JDK 关于接口的规则有变化，见上文）。
+- 一个类只能继承一个父类，但是可以实现多个接口。一个接口可以继承多个接口。
+
+#### 自定义比较方法
+
+有两个接口可以实现对象之间的排序和比较大小。
+
+`Comparable` 接口是排序接口。如果一个类实现了 `Comparable` 接口，则该类的对象可以排序。`Comparable` 接口包含一个抽象方法 `compareTo`，实现 `Comparable` 接口的类需要实现该方法，定义排序的依据。
+
+`Comparator` 接口是比较器接口。如果一个类本身不支持排序（即没有实现 `Comparable` 接口），但是又需要对该类的对象排序，则可以通过实现 `Comparator` 接口的方式建立比较器。`Comparator` 接口包含两个抽象方法 `compare` 和 `equals`，其中 `compare` 方法是必须在实现类中实现的，而 `equals` 方法在任何类中默认已经实现。
+
+如果需要对一个数组或列表中的多个对象进行排序，则可以将对象的类定义成实现 `Comparable` 接口，也可以在排序时定义 `Comparator` 比较器。
