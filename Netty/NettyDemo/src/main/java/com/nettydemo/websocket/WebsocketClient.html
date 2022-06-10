@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>netty-websocket-client</title>
+</head>
+<body>
+
+<script>
+    let socket;
+    // 判断当前浏览器是否支持websocket
+    if (window.WebSocket) {
+        socket = new WebSocket("ws://localhost:7000/hello");
+
+        // 相当于 channelRead0，读取消息
+        socket.onmessage = function (ev) {
+            const showText = document.getElementById('responseText');
+            showText.value += ev.data + "\r\n";
+        }
+
+        // 连接开启
+        socket.onopen = function (ev) {
+            const showText = document.getElementById('responseText');
+            showText.value = "已建立连接"+"\r\n";
+        }
+
+        // 连接关闭
+        socket.onclose = function (ev) {
+            const showText = document.getElementById('responseText');
+            showText.value += "已关闭连接" + "\r\n";
+        }
+
+        // 发送消息到服务器
+        function send(msg) {
+            // 先判断socket是否创建好
+            if (!socket) {
+                return;
+            }
+            if (socket.readyState === socket.OPEN) { // 判断websocket是否以建立连接
+                socket.send(msg);
+                const sendBox = document.getElementById('sendBox');
+                sendBox.value = '';
+            } else {
+                alert("未开启连接")
+            }
+
+        }
+
+    } else {
+        alert("当前浏览器不支持websocket！！！");
+    }
+</script>
+
+<form onsubmit="return false">
+    <textarea id = "sendBox" name="message" style="width: 150px;height: 200px"></textarea>
+    <input type="button" value="发送消息" onclick="send(this.form.message.value)">
+    <textarea id="responseText" style="width: 150px;height: 200px"></textarea>
+    <input type="button" value="清空内容" onclick="document.getElementById('responseText').value = ''">
+</form>
+
+</body>
+</html>

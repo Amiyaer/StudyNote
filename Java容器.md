@@ -240,7 +240,15 @@ TreeMap<Person, String> treeMap = new TreeMap<>((person1, person2) -> {
 
 #### ==HashMap的底层实现==
 
-~~见手抄~~
+底层维护`Node`类型的数组`table`。每一个元素都是一个Node。
+
+创建对象时，将负载因子`loadfactor`初始化为0.75。
+
+第一次添加元素：需要扩容table的容量为16，临界值`threshold`为12(16*`loadfactor`)
+
+以后再进行扩容时
+
+
 
 treeifyBin方法
 
@@ -282,3 +290,93 @@ treeifyBin方法
 
 ```
 
+HashMap的遍历方式：
+
+* 迭代器
+
+```java
+Iterator<Map.Entry<Integer, String>> iterator = map.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, String> entry = iterator.next();
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue());
+        }
+//Iterator<Integer> iterator = map.keySet().iterator();
+```
+
+* for each
+
+```java
+for (Map.Entry<Integer, String> entry : map.entrySet()) {
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue());
+        }
+//for (Integer key : map.keySet()) {}
+```
+
+* Lambda
+
+```java
+map.forEach((key, value) -> {
+            System.out.println(key);
+            System.out.println(value);
+        });
+```
+
+* Streams API遍历
+
+```java
+//单线程
+map.entrySet().stream().forEach((entry) -> {
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue());
+        });
+//多线程
+map.entrySet().parallelStream().forEach((entry) -> {
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue());
+        });
+```
+
+
+
+
+
+
+
+
+
+
+
+---
+
+
+
+
+
+
+
+
+
+### Collections工具类
+
+`Collections.` 
+
+```java
+void reverse(List list)//反转
+void shuffle(List list)//随机排序
+void sort(List list)//按自然排序的升序排序
+void sort(List list, Comparator c)//定制排序，由Comparator控制排序逻辑
+void swap(List list, int i , int j)//交换两个索引位置的元素
+void rotate(List list, int distance)//旋转。当distance为正数时，将list后distance个元素整体移到前面。当distance为负数时，将 list的前distance个元素整体移到后面
+```
+
+```java
+int binarySearch(List list, Object key)//对List进行二分查找，返回索引，注意List必须是有序的
+int max(Collection coll)//根据元素的自然顺序，返回最大的元素。 类比int min(Collection coll)
+int max(Collection coll, Comparator c)//根据定制排序，返回最大元素，排序规则由Comparatator类控制。类比int min(Collection coll, Comparator c)
+void fill(List list, Object obj)//用指定的元素代替指定list中的所有元素
+int frequency(Collection c, Object o)//统计元素出现次数
+int indexOfSubList(List list, List target)//统计target在list中第一次出现的索引，找不到则返回-1，类比int lastIndexOfSubList(List source, list target)
+boolean replaceAll(List list, Object oldVal, Object newVal)//用新元素替换旧元素
+```
